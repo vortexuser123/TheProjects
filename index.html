@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>codeformer-ani</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        .popup-enter {
+            opacity: 0;
+            transform: scale(0.9);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+        }
+
+        .popup-show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .glow:hover {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-900 to-black min-h-screen flex flex-col">
+
+    <nav class="glass text-white p-4 flex justify-between items-center shadow-lg">
+        <h1 class="text-xl font-bold">Projects By Ani</h1>
+    </nav>
+
+    <!-- Search and Filter -->
+    <div class="flex flex-col sm:flex-row justify-center items-center gap-4 p-6 text-white">
+        <input id="searchInput" type="text" placeholder="Search projects..."
+            class="glass px-4 py-2 rounded-lg w-72 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        
+        <div class="flex flex-wrap justify-center gap-2">
+            <button class="category-btn bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg" data-category="all">All</button>
+            <button class="category-btn glass px-4 py-2 rounded-lg hover:bg-blue-500/30" data-category="web">Web Projects</button>
+            <button class="category-btn glass px-4 py-2 rounded-lg hover:bg-blue-500/30" data-category="game">Game Projects</button>
+            <button class="category-btn glass px-4 py-2 rounded-lg hover:bg-blue-500/30" data-category="app">Application Projects</button>
+            <button class="category-btn glass px-4 py-2 rounded-lg hover:bg-blue-500/30" data-category="other">Extra Projects</button>
+        </div>
+    </div>
+
+    <!-- Cards -->
+    <div id="cardsContainer" class="flex flex-wrap gap-6 justify-center items-center flex-grow p-6">
+        <div class="bg-gray-800/50 text-white rounded-xl shadow-lg p-6 w-64 cursor-pointer hover:bg-gray-700/50 transition card fade-in-up glow"
+            data-menu="popup1" data-category="web">
+            <h2 class="text-xl font-bold">Animated Growing Plant</h2>
+            <p class="text-gray-400 text-sm">Animated Growing Plant made using HTML, CSS, & JavaScript</p>
+        </div>
+    </div>
+
+    <div id="popup1" class="popup-enter hidden fixed inset-0 bg-black/60 flex justify-center items-center z-50">
+        <div class="glass p-6 rounded-2xl shadow-xl w-80 text-white">
+            <h3 class="text-lg font-bold mb-4">Choose an option</h3>
+            <div class="flex flex-col gap-3">
+                <button onclick="openFile('https://github.com/vortexuser123/growing_plant')" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10">
+                    <i data-feather="archive"></i> Get Source Code
+                </button>
+                <button onclick="openFile('https://vortexuser123.github.io/growing_plant/')" class="flex items-center gap-3 p-3 rounded-lg hover:bg-white/10">
+                    <i data-feather="link"></i> Open Project
+                </button>
+            </div>
+            <button onclick="closePopup('popup1')" class="mt-6 w-full bg-red-500 hover:bg-red-600 p-3 rounded-lg text-white font-bold">Close</button>
+        </div>
+    </div>
+
+    
+
+    <!-- Existing popups (same as before) -->
+    <!-- keep your same popup sections here (popup1–popup9) -->
+
+    <script>
+        // popup system (unchanged)
+        document.querySelectorAll(".card").forEach(card => {
+            card.addEventListener("click", () => {
+                const menuId = card.getAttribute("data-menu");
+                openPopup(menuId);
+            });
+        });
+
+        function openPopup(id) {
+            const popup = document.getElementById(id);
+            popup.classList.remove("hidden");
+            setTimeout(() => popup.classList.add("popup-show"), 10);
+        }
+
+        function closePopup(id) {
+            const popup = document.getElementById(id);
+            popup.classList.remove("popup-show");
+            setTimeout(() => popup.classList.add("hidden"), 250);
+        }
+
+        function openFile(url) {
+            window.open(url, "_blank");
+        }
+
+        // search + category filter
+        const searchInput = document.getElementById('searchInput');
+        const categoryBtns = document.querySelectorAll('.category-btn');
+        const cards = document.querySelectorAll('.card');
+        let currentCategory = 'all';
+
+        searchInput.addEventListener('input', filterCards);
+        categoryBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                categoryBtns.forEach(b => b.classList.remove('bg-blue-600', 'hover:bg-blue-700'));
+                btn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                currentCategory = btn.dataset.category;
+                filterCards();
+            });
+        });
+
+        function filterCards() {
+            const searchValue = searchInput.value.toLowerCase();
+            cards.forEach(card => {
+                const title = card.querySelector('h2').textContent.toLowerCase();
+                const desc = card.querySelector('p').textContent.toLowerCase();
+                const category = card.dataset.category;
+
+                const matchesSearch = title.includes(searchValue) || desc.includes(searchValue);
+                const matchesCategory = currentCategory === 'all' || category === currentCategory;
+
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        feather.replace()
+    </script>
+
+</body>
+</html>
